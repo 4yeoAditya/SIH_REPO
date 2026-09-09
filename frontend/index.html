@@ -1,13 +1,526 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta charset="utf-8" />
+    <title>NER Smart Logistics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <h1>NER Smart Logistics</h1>
+      <div class="nav-links">
+        <button type="button" id="navLoginBtn" onclick="toggleLogin()">
+          System Login
+        </button>
+      </div>
+    </nav>
+
+    <!-- LANDING PAGE -->
+    <div id="landing-page">
+      <div class="hero">
+        <h2>
+          Freight and disaster routing for terrain that doesn't cooperate.
+        </h2>
+        <p>
+          One platform for fleet dispatch, cargo prioritization, and live
+          rerouting across 7.1 million infrastructure edges — built for the
+          roads, rivers, and airspace of the North East.
+        </p>
+        <button
+          type="button"
+          class="action-btn launch-btn"
+          onclick="toggleLogin()"
+        >
+          Launch platform
+        </button>
+      </div>
+
+      <div
+        class="hero-image"
+        style="
+          background-image: url(&quot;https://images.unsplash.com/photo-1596783049590-b18cb490dc68?auto=format&fit=crop&w=1200&q=80&quot;);
+        "
+      ></div>
+
+      <div class="features-section">
+        <h2>Built for the terrain of the North East</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Dynamic A* routing</h3>
+            <p>
+              Reads mountain topography in milliseconds using a bounding-box
+              subgraph algorithm, not a flat road-distance guess.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h3>Smart cargo holding</h3>
+            <p>
+              Non-essential shipments get grounded automatically during active
+              floods or landslides, so emergency drone capacity stays free.
+            </p>
+          </div>
+          <div class="feature-card">
+            <h3>Multi-tier dispatch</h3>
+            <p>
+              Role-based access separates NDRF override authority from NGO batch
+              dispatching and local driver navigation.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="banner-image"
+        style="
+          background-image: url(&quot;https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=80&quot;);
+        "
+      >
+        <div class="banner-overlay">
+          <h2>Resilient fleet management</h2>
+          <p>
+            When the roads break, we don't. Instant drone staging telemetry.
+          </p>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>© 2026 TrclAww Initiative. Built for Smart India Hackathon.</p>
+      </footer>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-screen">
+      <div class="login-card">
+        <h2>Sign in</h2>
+        <div class="input-group">
+          <input
+            type="text"
+            id="username"
+            placeholder="Username (ndrf, ngo, driver)"
+          />
+        </div>
+        <div class="input-group">
+          <input
+            type="password"
+            id="password"
+            placeholder="Password (admin / 1234)"
+          />
+        </div>
+        <button type="button" class="login-btn" onclick="handleLogin(event)">
+          Authenticate
+        </button>
+        <button
+          type="button"
+          class="login-btn cancel-btn"
+          onclick="toggleLogin()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN APP SCREEN -->
+    <div id="app-screen">
+      <div id="sidebar">
+        <h2 id="roleTitle" style="margin-top: 0">Dashboard</h2>
+
+        <!-- GOVERNMENT PANEL -->
+        <div class="panel hidden" id="govPanel">
+          <strong>NDRF Disaster Control</strong>
+          <input
+            type="text"
+            id="disasterLoc"
+            list="ne-cities"
+            class="control-input"
+            placeholder="Hazard Epicenter"
+            value="Anini"
+            autocomplete="off"
+          />
+          <select id="hazardType" class="control-input">
+            <option value="landslide">Severe Landslide</option>
+            <option value="flood">Flash Flood</option>
+          </select>
+          <input
+            type="number"
+            id="hazardRadius"
+            class="control-input"
+            placeholder="Impact Radius (km)"
+            value="40"
+          />
+          <button
+            type="button"
+            class="action-btn danger-btn"
+            onclick="triggerDisaster(event)"
+          >
+            Deploy Active Hazard
+          </button>
+          <button
+            type="button"
+            class="action-btn success-btn"
+            onclick="resetDisaster(event)"
+          >
+            Clear Hazards & Restore Grid
+          </button>
+
+          <!-- Government Driver Monitor -->
+          <div
+            style="
+              margin-top: 15px;
+              border-top: 1px solid var(--console-line);
+              padding-top: 12px;
+            "
+          >
+            <strong>Regional Driver Status Monitor</strong>
+            <table class="data-table" id="govDriverTable">
+              <thead>
+                <tr>
+                  <th>Driver ID</th>
+                  <th>NGO Hub</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- DISPATCH PANEL (NGO & Driver) -->
+        <div class="panel hidden" id="dispatchPanel">
+          <strong>Route Parameters</strong>
+
+          <!-- Local Driver Search Bar & Mission Control -->
+          <div id="driverIdSearch" class="hidden">
+            <input
+              type="text"
+              id="assignedDriverId"
+              class="control-input"
+              placeholder="Enter Assigned Driver ID (e.g. DRV-A1B2)"
+            />
+            <button
+              type="button"
+              class="action-btn"
+              style="background: #2563eb; margin-bottom: 12px"
+              onclick="loadDriverMission()"
+            >
+              Sync Assigned Route
+            </button>
+
+            <div
+              id="driverActiveMission"
+              class="hidden"
+              style="
+                margin-top: 15px;
+                border-top: 1px solid var(--console-line);
+                padding-top: 12px;
+              "
+            >
+              <strong id="driverMissionTitle">Mission</strong>
+              <p
+                id="driverMissionDetails"
+                class="panel-hint"
+                style="color: #60a5fa"
+              >
+                Waiting for departure...
+              </p>
+
+              <button
+                type="button"
+                class="action-btn success-btn hidden"
+                id="startTripBtn"
+                onclick="startDriverTrip()"
+              >
+                Start Trip
+              </button>
+              <button
+                type="button"
+                class="action-btn hidden"
+                style="background: #10b981"
+                id="endTripBtn"
+                onclick="endDriverTrip()"
+              >
+                Complete Trip
+              </button>
+
+              <!-- Dynamic Mid-Trip Disaster Alert -->
+              <div
+                id="driverHazardAlert"
+                class="hidden"
+                style="
+                  margin-top: 15px;
+                  padding: 12px;
+                  background: rgba(239, 68, 68, 0.1);
+                  border: 1px solid var(--danger);
+                  border-radius: 4px;
+                "
+              >
+                <strong style="color: var(--danger)"
+                  >⚠️ ROUTE COMPROMISED</strong
+                >
+                <p
+                  class="panel-hint"
+                  style="color: #fca5a5"
+                  id="driverHazardText"
+                >
+                  Active disaster detected ahead.
+                </p>
+                <button
+                  type="button"
+                  class="action-btn danger-btn"
+                  style="margin-bottom: 0"
+                  onclick="requestAirlift()"
+                >
+                  Request Emergency Airlift
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <datalist id="ne-cities">
+            <!-- Assam -->
+            <option value="Guwahati, Assam"></option>
+            <option value="Dibrugarh, Assam"></option>
+            <option value="Jorhat, Assam"></option>
+            <option value="Silchar, Assam"></option>
+            <option value="Tezpur, Assam"></option>
+            <option value="Nagaon, Assam"></option>
+            <option value="Tinsukia, Assam"></option>
+            <option value="Sivasagar, Assam"></option>
+            <option value="Dhubri, Assam"></option>
+            <option value="Goalpara, Assam"></option>
+            <option value="Barpeta, Assam"></option>
+            <option value="Nalbari, Assam"></option>
+            <option value="Bongaigaon, Assam"></option>
+            <option value="Karimganj, Assam"></option>
+            <option value="Hailakandi, Assam"></option>
+            <option value="Diphu, Assam"></option>
+            <option value="Haflong, Assam"></option>
+            <option value="North Lakhimpur, Assam"></option>
+            <option value="Golaghat, Assam"></option>
+            <option value="Morigaon, Assam"></option>
+            <option value="Kokrajhar, Assam"></option>
+            <option value="Mangaldoi, Assam"></option>
+            <!-- Arunachal Pradesh -->
+            <option value="Itanagar, Arunachal Pradesh"></option>
+            <option value="Anini, Arunachal Pradesh"></option>
+            <option value="Tawang, Arunachal Pradesh"></option>
+            <option value="Naharlagun, Arunachal Pradesh"></option>
+            <option value="Bomdila, Arunachal Pradesh"></option>
+            <option value="Ziro, Arunachal Pradesh"></option>
+            <option value="Along, Arunachal Pradesh"></option>
+            <option value="Pasighat, Arunachal Pradesh"></option>
+            <option value="Tezu, Arunachal Pradesh"></option>
+            <option value="Roing, Arunachal Pradesh"></option>
+            <option value="Changlang, Arunachal Pradesh"></option>
+            <option value="Khonsa, Arunachal Pradesh"></option>
+            <option value="Namsai, Arunachal Pradesh"></option>
+            <option value="Seppa, Arunachal Pradesh"></option>
+            <option value="Yingkiong, Arunachal Pradesh"></option>
+            <!-- Manipur -->
+            <option value="Imphal, Manipur"></option>
+            <option value="Thoubal, Manipur"></option>
+            <option value="Bishnupur, Manipur"></option>
+            <option value="Churachandpur, Manipur"></option>
+            <option value="Ukhrul, Manipur"></option>
+            <option value="Senapati, Manipur"></option>
+            <option value="Tamenglong, Manipur"></option>
+            <option value="Kakching, Manipur"></option>
+            <option value="Jiribam, Manipur"></option>
+            <option value="Moreh, Manipur"></option>
+            <!-- Meghalaya -->
+            <option value="Shillong, Meghalaya"></option>
+            <option value="Tura, Meghalaya"></option>
+            <option value="Jowai, Meghalaya"></option>
+            <option value="Nongstoin, Meghalaya"></option>
+            <option value="Williamnagar, Meghalaya"></option>
+            <option value="Baghmara, Meghalaya"></option>
+            <option value="Mairang, Meghalaya"></option>
+            <option value="Resubelpara, Meghalaya"></option>
+            <!-- Mizoram -->
+            <option value="Aizawl, Mizoram"></option>
+            <option value="Lunglei, Mizoram"></option>
+            <option value="Champhai, Mizoram"></option>
+            <option value="Serchhip, Mizoram"></option>
+            <option value="Kolasib, Mizoram"></option>
+            <option value="Saiha, Mizoram"></option>
+            <option value="Mamit, Mizoram"></option>
+            <option value="Lawngtlai, Mizoram"></option>
+            <!-- Nagaland -->
+            <option value="Kohima, Nagaland"></option>
+            <option value="Dimapur, Nagaland"></option>
+            <option value="Mokokchung, Nagaland"></option>
+            <option value="Tuensang, Nagaland"></option>
+            <option value="Wokha, Nagaland"></option>
+            <option value="Zunheboto, Nagaland"></option>
+            <option value="Phek, Nagaland"></option>
+            <option value="Mon, Nagaland"></option>
+            <option value="Peren, Nagaland"></option>
+            <option value="Kiphire, Nagaland"></option>
+            <option value="Longleng, Nagaland"></option>
+            <!-- Sikkim -->
+            <option value="Gangtok, Sikkim"></option>
+            <option value="Namchi, Sikkim"></option>
+            <option value="Gyalshing, Sikkim"></option>
+            <option value="Mangan, Sikkim"></option>
+            <option value="Rangpo, Sikkim"></option>
+            <option value="Jorethang, Sikkim"></option>
+            <option value="Singtam, Sikkim"></option>
+            <!-- Tripura -->
+            <option value="Agartala, Tripura"></option>
+            <option value="Udaipur, Tripura"></option>
+            <option value="Dharmanagar, Tripura"></option>
+            <option value="Kailashahar, Tripura"></option>
+            <option value="Belonia, Tripura"></option>
+            <option value="Khowai, Tripura"></option>
+            <option value="Ambassa, Tripura"></option>
+            <option value="Sabroom, Tripura"></option>
+            <option value="Sonamura, Tripura"></option>
+            <option value="Teliamura, Tripura"></option>
+          </datalist>
+
+          <input
+            type="text"
+            id="locStart"
+            list="ne-cities"
+            class="control-input"
+            placeholder="Start Location"
+            value="Guwahati"
+            autocomplete="off"
+          />
+          <input
+            type="text"
+            id="locEnd"
+            list="ne-cities"
+            class="control-input"
+            placeholder="Destination"
+            value="Anini"
+            autocomplete="off"
+          />
+
+          <div id="orgInputs" class="hidden">
+            <input
+              type="number"
+              id="orgCargo"
+              class="control-input"
+              placeholder="Total Cargo (Tons)"
+              value="100"
+            />
+            <select id="cargoPriority" class="control-input">
+              <option value="urgent">Urgent / Medical / Perishable</option>
+              <option value="standard">Standard Supply</option>
+              <option value="non_essential">
+                Non-Essential (Clothing / Durable)
+              </option>
+            </select>
+
+            <!-- NGO Driver Dispatch Button -->
+            <button
+              type="button"
+              class="action-btn generate-btn"
+              onclick="executeRouting(event)"
+            >
+              1. Preview Optimal Route
+            </button>
+            <button
+              type="button"
+              class="action-btn"
+              style="background: #0284c7"
+              onclick="dispatchDriverConvoy(event)"
+            >
+              2. Generate Driver UIDs & Dispatch
+            </button>
+
+            <!-- NGO Fleet Table -->
+            <div
+              id="orgDriverSection"
+              class="hidden"
+              style="
+                margin-top: 15px;
+                border-top: 1px solid var(--console-line);
+                padding-top: 12px;
+              "
+            >
+              <strong>Deployed NGO Drivers & Cargo</strong>
+              <table class="data-table" id="ngoDriverTable">
+                <thead>
+                  <tr>
+                    <th>Driver ID</th>
+                    <th>Destination</th>
+                    <th>Cargo</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <a
+            id="gmapsLink"
+            href="#"
+            target="_blank"
+            class="action-btn gmaps-btn hidden"
+            >Open in Google Maps</a
+          >
+        </div>
+
+        <!-- MULTI-WAYPOINT PANEL (NGO only) -->
+        <div class="panel hidden" id="waypointsPanel">
+          <strong>Intermediate Stops</strong>
+          <p class="panel-hint">
+            Add hubs between start and destination — the convoy routes through
+            each in order.
+          </p>
+          <div id="waypointsContainer"></div>
+          <button
+            type="button"
+            class="action-btn waypoint-add-btn"
+            onclick="addWaypoint()"
+          >
+            + Add stop
+          </button>
+        </div>
+
+        <!-- WEATHER TELEMETRY -->
+        <div class="panel" id="weatherPanel">
+          <strong>Live Weather Telemetry</strong>
+          <div
+            id="weatherAlertBanner"
+            class="weather-alert-banner hidden"
+          ></div>
+          <pre id="weatherOutput">Connecting to monsoon feed...</pre>
+        </div>
+
+        <!-- FLEET ANALYTICS -->
+        <div class="panel" id="fleetPanel">
+          <strong>Fleet Capacity</strong>
+          <canvas id="fleetChart" height="180"></canvas>
+          <p id="fleetChartCaption" class="panel-hint">
+            Generate a route to see fleet utilization.
+          </p>
+        </div>
+
+        <!-- MANIFEST OUTPUT -->
+        <div class="panel">
+          <strong>Live Telemetry</strong>
+          <pre id="manifestOutput">Awaiting deployment initialization...</pre>
+        </div>
+      </div>
+
+      <div id="map"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>

@@ -1,0 +1,673 @@
+/* ============================================================
+   NER Smart Logistics — visual redesign
+   Landing/login: light, editorial, humbleops-style
+   Dispatch console: dark "control room" terminal
+   ============================================================ */
+
+:root {
+  /* Landing surface */
+  --bg: #f6f5f1;
+  --bg-panel: #ffffff;
+  --ink: #14150f;
+  --ink-dim: #66665c;
+  --line: #dfddd3;
+
+  /* Console surface (app screen) */
+  --console-bg: #101109;
+  --console-panel: #16170e;
+  --console-line: #2c2d20;
+  --console-text: #ece9dd;
+  --console-dim: #8d8e7c;
+
+  /* Accent + status */
+  --accent: #ff5a1f;
+  --accent-ink: #14150f;
+  --danger: #ff4d4d;
+  --success: #2fae6b;
+
+  --radius: 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ---------------- Navbar ---------------- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(246, 245, 241, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  box-shadow: none;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+.navbar h1 {
+  margin: 0;
+  font-size: 17px;
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.nav-links button {
+  background: transparent;
+  color: var(--ink);
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+.nav-links button:hover {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* ---------------- Landing page ---------------- */
+#landing-page {
+  padding-top: 76px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero {
+  max-width: 760px;
+  padding: 96px 24px 48px;
+  text-align: left;
+  align-self: flex-start;
+  margin-left: max(24px, calc(50% - 600px));
+}
+.hero h2 {
+  font-size: clamp(36px, 5vw, 60px);
+  color: var(--ink);
+  margin: 0 0 22px;
+  line-height: 1.05;
+  font-weight: 600;
+}
+.hero p {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 36px;
+  color: var(--ink-dim);
+  max-width: 56ch;
+}
+.launch-btn {
+  width: auto;
+  display: inline-block;
+  padding: 14px 30px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  border: none;
+}
+.launch-btn:hover {
+  background: #e64f16;
+}
+
+/* Images */
+.hero-image {
+  width: 100%;
+  max-width: 1200px;
+  height: 460px;
+  border-radius: var(--radius);
+  background-size: cover;
+  background-position: center;
+  box-shadow: none;
+  border: 1px solid var(--line);
+  margin: 0 0 96px;
+  filter: grayscale(30%) contrast(1.05);
+}
+.banner-image {
+  width: 100%;
+  height: 380px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+  filter: grayscale(35%);
+}
+.banner-overlay {
+  background: rgba(16, 17, 9, 0.82);
+  padding: 40px 48px;
+  text-align: left;
+  color: #f6f5f1;
+  border-radius: var(--radius);
+  backdrop-filter: none;
+  max-width: 520px;
+}
+.banner-overlay h2 {
+  margin: 0 0 10px 0;
+  font-size: 30px;
+  font-weight: 600;
+}
+.banner-overlay p {
+  margin: 0;
+  color: #c9c7ba;
+}
+
+/* Features */
+.features-section {
+  width: 100%;
+  max-width: 1200px;
+  padding: 100px 24px 100px;
+  box-sizing: border-box;
+  text-align: left;
+}
+.features-section h2 {
+  font-size: 32px;
+  margin: 0 0 48px;
+  color: var(--ink);
+  font-weight: 600;
+  max-width: 20ch;
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+.feature-card {
+  background: transparent;
+  padding: 32px 28px 32px 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: left;
+  border: none;
+  border-right: 1px solid var(--line);
+}
+.feature-card:last-child {
+  border-right: none;
+}
+.feature-card h3 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 600;
+}
+.feature-card p {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.footer {
+  width: 100%;
+  background: var(--bg);
+  color: var(--ink-dim);
+  text-align: left;
+  padding: 28px 40px;
+  box-sizing: border-box;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+/* ---------------- Login modal ---------------- */
+#login-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 17, 9, 0.92);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+.login-card {
+  background: var(--bg-panel);
+  padding: 40px;
+  border-radius: var(--radius);
+  box-shadow: none;
+  border: 1px solid var(--line);
+  width: 100%;
+  max-width: 340px;
+}
+.login-card h2 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  color: var(--ink);
+  text-align: left;
+  font-size: 24px;
+  font-weight: 600;
+}
+.login-card::before {
+  content: "Restricted access";
+  display: block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-bottom: 18px;
+}
+.input-group {
+  margin-bottom: 14px;
+}
+.input-group input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: "IBM Plex Mono", monospace;
+  outline: none;
+  background: #fbfaf7;
+  transition: 0.15s;
+}
+.input-group input:focus {
+  border-color: var(--ink);
+  background: #fff;
+}
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+.login-btn:hover {
+  background: #e64f16;
+}
+.cancel-btn {
+  background: transparent;
+  color: var(--ink-dim);
+  margin-top: 8px;
+  border: 1px solid var(--line);
+}
+.cancel-btn:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* ---------------- App / dispatch console screen ---------------- */
+#app-screen {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  padding-top: 60px;
+  box-sizing: border-box;
+  background: var(--console-bg);
+}
+#sidebar {
+  width: 400px;
+  height: 100%;
+  padding: 24px;
+  background: var(--console-panel);
+  box-sizing: border-box;
+  overflow-y: auto;
+  border-right: 1px solid var(--console-line);
+  float: left;
+  color: var(--console-text);
+}
+#sidebar h2#roleTitle {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-transform: none;
+  padding-bottom: 16px;
+  margin-bottom: 20px !important;
+  border-bottom: 1px solid var(--console-line);
+}
+#map {
+  width: calc(100% - 400px);
+  height: 100%;
+  float: left;
+  z-index: 1;
+  filter: saturate(0.9);
+}
+
+.panel {
+  background: transparent;
+  padding: 0 0 20px;
+  border-radius: 0;
+  margin-bottom: 20px;
+  border: none;
+  border-bottom: 1px solid var(--console-line);
+}
+.panel:last-child {
+  border-bottom: none;
+}
+.panel strong {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--console-dim);
+  font-size: 12px;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+.control-input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 11px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--console-line);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: "IBM Plex Mono", monospace;
+  background: #1c1d12;
+  color: var(--console-text);
+}
+.control-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.control-input::placeholder {
+  color: var(--console-dim);
+}
+
+.action-btn {
+  width: 100%;
+  padding: 13px;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: 0.15s;
+}
+.generate-btn {
+  background: var(--accent);
+}
+.generate-btn:hover {
+  background: #e64f16;
+}
+.danger-btn {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+.danger-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+.success-btn {
+  background: transparent;
+  border: 1px solid var(--success);
+  color: var(--success);
+}
+.success-btn:hover {
+  background: var(--success);
+  color: #101109;
+}
+.gmaps-btn {
+  background: transparent;
+  border: 1px solid var(--console-line);
+  color: var(--console-text);
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  box-sizing: border-box;
+}
+.gmaps-btn:hover {
+  border-color: var(--console-text);
+}
+
+pre {
+  background: #0a0b06;
+  color: #ffb185;
+  padding: 16px;
+  font-size: 12.5px;
+  font-family: "IBM Plex Mono", monospace;
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--console-line);
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+.hidden {
+  display: none !important;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 860px) {
+  .hero {
+    margin-left: 0;
+  }
+  #sidebar {
+    width: 100%;
+    height: auto;
+    float: none;
+  }
+  #map {
+    width: 100%;
+    height: 60vh;
+    float: none;
+  }
+}
+
+/* ---------------- New feature panels ---------------- */
+.panel-hint {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--console-dim);
+  line-height: 1.5;
+}
+
+/* Waypoints */
+.waypoint-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.waypoint-row .waypoint-input {
+  margin-bottom: 0;
+  flex: 1;
+}
+.waypoint-remove {
+  width: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--console-line);
+  background: transparent;
+  color: var(--console-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.waypoint-remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.waypoint-add-btn {
+  background: transparent;
+  border: 1px dashed var(--console-line);
+  color: var(--console-text);
+  margin-bottom: 0;
+}
+.waypoint-add-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Weather telemetry */
+.weather-alert-banner {
+  background: rgba(255, 90, 31, 0.12);
+  border: 1px solid var(--accent);
+  color: #ffb185;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+#weatherOutput {
+  font-size: 11.5px;
+}
+
+/* Fleet analytics */
+#fleetPanel canvas {
+  max-width: 100%;
+  margin-bottom: 10px;
+}
+
+/* ---------------- Driver mobile view ---------------- */
+body.driver-mode #app-screen {
+  padding-top: 60px;
+}
+body.driver-mode #sidebar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-height: 42vh;
+  float: none;
+  border-right: none;
+  border-top: 1px solid var(--console-line);
+  z-index: 900;
+  border-radius: 14px 14px 0 0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+}
+body.driver-mode #sidebar h2#roleTitle {
+  font-size: 12px;
+}
+body.driver-mode #map {
+  width: 100%;
+  height: 100vh;
+  float: none;
+}
+body.driver-mode #fleetPanel,
+body.driver-mode #weatherPanel {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  body:not(.driver-mode) #sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 55vh;
+    float: none;
+    border-right: none;
+    border-bottom: 1px solid var(--console-line);
+  }
+  body:not(.driver-mode) #map {
+    width: 100%;
+    height: 45vh;
+    float: none;
+  }
+  body.driver-mode #sidebar {
+    max-height: 50vh;
+  }
+  .hero {
+    margin-left: 0;
+    padding-top: 64px;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .feature-card {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* ---------------- Fleet Data Tables ---------------- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11.5px;
+  margin-top: 8px;
+}
+.data-table th {
+  text-align: left;
+  color: var(--console-dim);
+  border-bottom: 1px solid var(--console-line);
+  padding: 6px 4px;
+}
+.data-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--console-text);
+}
+
+.mini-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  margin-left: 6px;
+  font-weight: 600;
+}
+.mini-btn:hover {
+  background: #e64f16;
+}
+
+.badge-status {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.badge-intransit {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+.badge-delivered {
+  background: rgba(47, 174, 107, 0.2);
+  color: #4ade80;
+}
+.badge-dispatched {
+  background: rgba(255, 90, 31, 0.2);
+  color: #ff8a58;
+}
+.badge-airliftrequested {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+.badge-airliftdispatched {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+}
