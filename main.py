@@ -6,7 +6,7 @@ import pickle
 import os
 import random
 import uuid
-import asyncio
+import requests
 from datetime import datetime, timezone
 from pyproj import Transformer
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,12 +21,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ---------------------------------------------------------------------------
+# Graph loading (downloads graph_state.pkl from a public GitHub Release if
+# not present locally — this is what lets us keep the 1GB+ file out of the
+# actual git repo entirely)
+# ---------------------------------------------------------------------------
+GRAPH_PATH = "graph_state.pkl"
+GRAPH_URL = "https://github.com/4yeoAditya/SIH_REPO/releases/download/v1.0.0/graph_state.pkl"
+
+def ensure_graph_downloaded():
+    if os.path.exists(GRAPH_PATH):
+        return
+    print("graph_state.pkl not found locally — downloading from GitHub Releases...")
+    response = requests.get(GRAPH_URL, stream=True)
+    response.raise_for_status()
+    with open(GRAPH_PATH, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+    print("Download complete.")
+
+def load_graph_state():
+    ensure_graph_downloaded()
+    with open(GRAPH_PATH, "rb") as f:
+        return pickle.load(f)
+
 print("Loading multimodal graph from disk...")
-with open("graph_state.pkl", "rb") as f:
-    state = pickle.load(f)
-    G = state["G"]
-    tree = state["tree"]
-    road_nodes = state["road_nodes"]
+state = load_graph_state()
+G = state["G"]
+tree = state["tree"]
+road_nodes = state["road_nodes"]
 
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:32646", always_xy=True)
 reverse_transformer = Transformer.from_crs("EPSG:32646", "EPSG:4326", always_xy=True)
@@ -194,11 +217,10 @@ def reset_network(req: ResetRequest):
     global G, tree, road_nodes
     ACTIVE_ALERTS.clear()
     
-    with open("graph_state.pkl", "rb") as f:
-        state = pickle.load(f)
-        G = state["G"]
-        tree = state["tree"]
-        road_nodes = state["road_nodes"]
+    state = load_graph_state()
+    G = state["G"]
+    tree = state["tree"]
+    road_nodes = state["road_nodes"]
         
     return {"status": "success", "message": "All infrastructure links restored."}
 
