@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic
+networkx
+pyproj
+requests
+scipy
