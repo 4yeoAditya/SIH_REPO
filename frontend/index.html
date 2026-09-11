@@ -2,10 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>NER Smart Logistics</title>
+    <title>Akatsuki Smart Logistics</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <link
@@ -17,7 +17,7 @@
   <body>
     <!-- NAVBAR -->
     <nav class="navbar">
-      <h1>NER Smart Logistics</h1>
+      <h1>Akatsuki.</h1>
       <div class="nav-links">
         <button type="button" id="navLoginBtn" onclick="toggleLogin()">
           System Login
@@ -27,50 +27,102 @@
 
     <!-- LANDING PAGE -->
     <div id="landing-page">
-      <div class="hero">
-        <h2>
-          Freight and disaster routing for terrain that doesn't cooperate.
-        </h2>
-        <p>
-          One platform for fleet dispatch, cargo prioritization, and live
-          rerouting across 7.1 million infrastructure edges — built for the
-          roads, rivers, and airspace of the North East.
-        </p>
-        <button
-          type="button"
-          class="action-btn launch-btn"
-          onclick="toggleLogin()"
-        >
-          Launch platform
-        </button>
+      <div class="hero-split-container">
+        <!-- Text container with 3D tilt effect and full card hover state -->
+        <div class="hero-split-container">
+          <!-- Running background marquee text -->
+          <div class="marquee-bg" id="marqueeBg" aria-hidden="true">
+            <div class="marquee-track">
+              <span>AKATSUKI</span><span>·</span><span>DEFY THE TERRAIN</span
+              ><span>·</span> <span>AKATSUKI</span><span>·</span
+              ><span>DEFY THE TERRAIN</span><span>·</span> <span>AKATSUKI</span
+              ><span>·</span><span>DEFY THE TERRAIN</span><span>·</span>
+              <span>AKATSUKI</span><span>·</span><span>DEFY THE TERRAIN</span
+              ><span>·</span>
+            </div>
+          </div>
+
+          <div class="hero-text-card" id="tiltCard">
+            <h2>Defy the terrain.</h2>
+            <p>
+              An elegant, unified platform for fleet dispatch and live rerouting
+              across 7.1 million infrastructure edges. Engineered for the
+              extreme topography of the North East.
+            </p>
+            <button
+              type="button"
+              class="action-btn launch-btn"
+              onclick="toggleLogin()"
+            >
+              Launch Platform
+            </button>
+          </div>
+        </div>
+
+        <!-- Static Image Container -->
+        <div class="sensiq-floating-asset">
+          <img
+            id="hero-static-img"
+            src="img.png"
+            alt="Akatsuki Logistics Terrain"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.style.display = 'flex';
+            "
+          />
+          <div
+            class="img-fallback"
+            style="
+              display: none;
+              width: 100%;
+              height: 100%;
+              background: #eaeaea;
+              align-items: center;
+              justify-content: center;
+              color: #666;
+              font-family: &quot;Inter&quot;, sans-serif;
+              font-size: 14px;
+            "
+          >
+            [ Place img.png in folder ]
+          </div>
+        </div>
       </div>
 
-      <div
-        class="hero-image"
-        style="
-          background-image: url(&quot;https://images.unsplash.com/photo-1596783049590-b18cb490dc68?auto=format&fit=crop&w=1200&q=80&quot;);
-        "
-      ></div>
+      <!-- HERO PHOTO STRIP -->
+      <div class="hero-gallery">
+        <img
+          src="https://picsum.photos/id/1015/600/400"
+          alt="Mountain terrain"
+        />
+        <img src="https://picsum.photos/id/1043/600/400" alt="Convoy route" />
+        <img
+          src="https://picsum.photos/id/1036/600/400"
+          alt="Relief dispatch"
+        />
+      </div>
 
       <div class="features-section">
-        <h2>Built for the terrain of the North East</h2>
+        <div class="features-header">
+          <h2>Intelligence for<br />the extreme.</h2>
+        </div>
         <div class="features-grid">
           <div class="feature-card">
-            <h3>Dynamic A* routing</h3>
+            <h3>Dynamic A* Routing</h3>
             <p>
               Reads mountain topography in milliseconds using a bounding-box
-              subgraph algorithm, not a flat road-distance guess.
+              subgraph algorithm, bypassing flat road-distance estimates.
             </p>
           </div>
           <div class="feature-card">
-            <h3>Smart cargo holding</h3>
+            <h3>Smart Cargo Holding</h3>
             <p>
               Non-essential shipments get grounded automatically during active
-              floods or landslides, so emergency drone capacity stays free.
+              floods or landslides, preserving emergency drone capacity.
             </p>
           </div>
           <div class="feature-card">
-            <h3>Multi-tier dispatch</h3>
+            <h3>Multi-Tier Dispatch</h3>
             <p>
               Role-based access separates NDRF override authority from NGO batch
               dispatching and local driver navigation.
@@ -79,46 +131,139 @@
         </div>
       </div>
 
-      <div
-        class="banner-image"
-        style="
-          background-image: url(&quot;https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=80&quot;);
-        "
-      >
-        <div class="banner-overlay">
-          <h2>Resilient fleet management</h2>
-          <p>
-            When the roads break, we don't. Instant drone staging telemetry.
-          </p>
-        </div>
-      </div>
-
       <footer class="footer">
-        <p>© 2026 TrclAww Initiative. Built for Smart India Hackathon.</p>
+        <p>© 2026 Akatsuki Initiative. Built for Smart India Hackathon.</p>
       </footer>
     </div>
 
-    <!-- LOGIN MODAL -->
+    <!-- LOGIN / REGISTRATION MODAL -->
     <div id="login-screen">
-      <div class="login-card">
-        <h2>Sign in</h2>
-        <div class="input-group">
-          <input
-            type="text"
-            id="username"
-            placeholder="Username (ndrf, ngo, driver)"
-          />
+      <div class="login-card" style="max-height: 90vh; overflow-y: auto">
+        <!-- Auth Tabs -->
+        <div style="display: flex; gap: 12px; margin-bottom: 24px">
+          <button
+            type="button"
+            id="tabSignIn"
+            class="action-btn"
+            style="margin-bottom: 0; background: var(--ink); color: #fff"
+            onclick="switchAuthTab('signin')"
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            id="tabRegister"
+            class="action-btn"
+            style="
+              margin-bottom: 0;
+              background: transparent;
+              border: 1px solid var(--line);
+              color: var(--ink);
+            "
+            onclick="switchAuthTab('register')"
+          >
+            Register NGO
+          </button>
         </div>
-        <div class="input-group">
-          <input
-            type="password"
-            id="password"
-            placeholder="Password (admin / 1234)"
-          />
+
+        <!-- Sign In Form -->
+        <div id="signInForm">
+          <h2>Sign In</h2>
+          <p class="login-subtitle">Restricted Access</p>
+          <div class="input-group">
+            <input
+              type="text"
+              id="username"
+              placeholder="Username (ndrf, ngo, driver)"
+            />
+          </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="password"
+              placeholder="Password (admin / 1234)"
+            />
+          </div>
+          <button type="button" class="login-btn" onclick="handleLogin(event)">
+            Authenticate
+          </button>
         </div>
-        <button type="button" class="login-btn" onclick="handleLogin(event)">
-          Authenticate
-        </button>
+
+        <!-- Register NGO Big Form -->
+        <div id="registerForm" class="hidden">
+          <h2>Setup Fleet</h2>
+          <p class="login-subtitle">Organization & Garage Onboarding</p>
+          <div class="input-group">
+            <input
+              type="text"
+              id="regNgoName"
+              placeholder="Organization Name"
+            />
+          </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="regPassword"
+              placeholder="Set Dashboard Password"
+            />
+          </div>
+
+          <div
+            class="section-divider"
+            style="margin-top: 10px; padding-top: 16px"
+          >
+            <strong style="display: block; margin-bottom: 12px; font-size: 12px"
+              >AVAILABLE VEHICLE INVENTORY</strong
+            >
+            <div id="regFleetContainer">
+              <div class="vehicle-row">
+                <input
+                  type="text"
+                  class="control-input v-type"
+                  placeholder="Type (e.g. 4x4)"
+                  value="Heavy Truck"
+                />
+                <input
+                  type="number"
+                  class="control-input v-cap"
+                  placeholder="Tons"
+                  value="15"
+                />
+                <button
+                  type="button"
+                  class="waypoint-remove"
+                  onclick="this.parentElement.remove()"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="mini-btn"
+              style="
+                margin-left: 0;
+                background: transparent;
+                border: 1px dashed var(--ink);
+                color: var(--ink);
+                width: 100%;
+                padding: 10px;
+              "
+              onclick="addRegVehicle()"
+            >
+              + Add Another Vehicle
+            </button>
+          </div>
+
+          <button
+            type="button"
+            class="login-btn"
+            onclick="handleRegister(event)"
+          >
+            Register & Login
+          </button>
+        </div>
+
         <button
           type="button"
           class="login-btn cancel-btn"
@@ -132,11 +277,55 @@
     <!-- MAIN APP SCREEN -->
     <div id="app-screen">
       <div id="sidebar">
-        <h2 id="roleTitle" style="margin-top: 0">Dashboard</h2>
+        <h2 id="roleTitle">Dashboard</h2>
+
+        <!-- NGO FLEET CONFIGURATION PANEL -->
+        <div class="panel hidden" id="ngoSettingsPanel">
+          <strong>Active Fleet Configuration</strong>
+          <p class="panel-hint">
+            Manage your available vehicles. The AI will dynamically assign the
+            most optimal trucks based on these capacities.
+          </p>
+          <input
+            type="text"
+            id="ngoNameConfig"
+            class="control-input"
+            placeholder="Organization Name"
+            disabled
+          />
+
+          <div id="settingsFleetContainer" style="margin-top: 12px">
+            <!-- Populated dynamically via JS -->
+          </div>
+          <button
+            type="button"
+            class="mini-btn"
+            style="
+              margin-left: 0;
+              margin-bottom: 16px;
+              background: transparent;
+              border: 1px dashed var(--line);
+              color: var(--ink);
+              width: 100%;
+              padding: 8px;
+            "
+            onclick="addSettingsVehicle()"
+          >
+            + Add New Vehicle
+          </button>
+
+          <button
+            type="button"
+            class="action-btn success-btn"
+            onclick="saveNgoConfig(event)"
+          >
+            Update Garage Registry
+          </button>
+        </div>
 
         <!-- GOVERNMENT PANEL -->
         <div class="panel hidden" id="govPanel">
-          <strong>NDRF Disaster Control</strong>
+          <strong>NDRF Command Control</strong>
           <input
             type="text"
             id="disasterLoc"
@@ -173,14 +362,8 @@
           </button>
 
           <!-- Government Driver Monitor -->
-          <div
-            style="
-              margin-top: 15px;
-              border-top: 1px solid var(--console-line);
-              padding-top: 12px;
-            "
-          >
-            <strong>Regional Driver Status Monitor</strong>
+          <div class="section-divider">
+            <strong>Regional Fleet Monitor</strong>
             <table class="data-table" id="govDriverTable">
               <thead>
                 <tr>
@@ -209,27 +392,15 @@
             <button
               type="button"
               class="action-btn"
-              style="background: #2563eb; margin-bottom: 12px"
+              style="background: var(--ink); color: #fff"
               onclick="loadDriverMission()"
             >
               Sync Assigned Route
             </button>
 
-            <div
-              id="driverActiveMission"
-              class="hidden"
-              style="
-                margin-top: 15px;
-                border-top: 1px solid var(--console-line);
-                padding-top: 12px;
-              "
-            >
+            <div id="driverActiveMission" class="hidden section-divider">
               <strong id="driverMissionTitle">Mission</strong>
-              <p
-                id="driverMissionDetails"
-                class="panel-hint"
-                style="color: #60a5fa"
-              >
+              <p id="driverMissionDetails" class="panel-hint">
                 Waiting for departure...
               </p>
 
@@ -244,7 +415,6 @@
               <button
                 type="button"
                 class="action-btn hidden"
-                style="background: #10b981"
                 id="endTripBtn"
                 onclick="endDriverTrip()"
               >
@@ -252,25 +422,9 @@
               </button>
 
               <!-- Dynamic Mid-Trip Disaster Alert -->
-              <div
-                id="driverHazardAlert"
-                class="hidden"
-                style="
-                  margin-top: 15px;
-                  padding: 12px;
-                  background: rgba(239, 68, 68, 0.1);
-                  border: 1px solid var(--danger);
-                  border-radius: 4px;
-                "
-              >
-                <strong style="color: var(--danger)"
-                  >⚠️ ROUTE COMPROMISED</strong
-                >
-                <p
-                  class="panel-hint"
-                  style="color: #fca5a5"
-                  id="driverHazardText"
-                >
+              <div id="driverHazardAlert" class="hidden hazard-alert-box">
+                <strong>⚠️ ROUTE COMPROMISED</strong>
+                <p class="panel-hint" id="driverHazardText">
                   Active disaster detected ahead.
                 </p>
                 <button
@@ -286,7 +440,6 @@
           </div>
 
           <datalist id="ne-cities">
-            <!-- Assam -->
             <option value="Guwahati, Assam"></option>
             <option value="Dibrugarh, Assam"></option>
             <option value="Jorhat, Assam"></option>
@@ -387,24 +540,44 @@
             <option value="Teliamura, Tripura"></option>
           </datalist>
 
-          <input
-            type="text"
-            id="locStart"
-            list="ne-cities"
-            class="control-input"
-            placeholder="Start Location"
-            value="Guwahati"
-            autocomplete="off"
-          />
-          <input
-            type="text"
-            id="locEnd"
-            list="ne-cities"
-            class="control-input"
-            placeholder="Destination"
-            value="Anini"
-            autocomplete="off"
-          />
+          <div style="display: flex; gap: 8px; margin-bottom: 16px">
+            <input
+              type="text"
+              id="locStart"
+              list="ne-cities"
+              class="control-input"
+              placeholder="Start Location"
+              style="margin-bottom: 0"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              class="map-pick-btn"
+              onclick="enableMapPick('locStart')"
+              title="Pick location on map"
+            >
+              🎯
+            </button>
+          </div>
+          <div style="display: flex; gap: 8px; margin-bottom: 16px">
+            <input
+              type="text"
+              id="locEnd"
+              list="ne-cities"
+              class="control-input"
+              placeholder="Destination"
+              style="margin-bottom: 0"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              class="map-pick-btn"
+              onclick="enableMapPick('locEnd')"
+              title="Pick location on map"
+            >
+              🎯
+            </button>
+          </div>
 
           <div id="orgInputs" class="hidden">
             <input
@@ -412,7 +585,7 @@
               id="orgCargo"
               class="control-input"
               placeholder="Total Cargo (Tons)"
-              value="100"
+              value="30"
             />
             <select id="cargoPriority" class="control-input">
               <option value="urgent">Urgent / Medical / Perishable</option>
@@ -422,7 +595,6 @@
               </option>
             </select>
 
-            <!-- NGO Driver Dispatch Button -->
             <button
               type="button"
               class="action-btn generate-btn"
@@ -433,28 +605,19 @@
             <button
               type="button"
               class="action-btn"
-              style="background: #0284c7"
+              style="background: var(--ink); color: #fff"
               onclick="dispatchDriverConvoy(event)"
             >
-              2. Generate Driver UIDs & Dispatch
+              2. Auto-Assign Fleet & Dispatch
             </button>
 
-            <!-- NGO Fleet Table -->
-            <div
-              id="orgDriverSection"
-              class="hidden"
-              style="
-                margin-top: 15px;
-                border-top: 1px solid var(--console-line);
-                padding-top: 12px;
-              "
-            >
-              <strong>Deployed NGO Drivers & Cargo</strong>
+            <div id="orgDriverSection" class="hidden section-divider">
+              <strong>Deployed Drivers & Cargo</strong>
               <table class="data-table" id="ngoDriverTable">
                 <thead>
                   <tr>
                     <th>Driver ID</th>
-                    <th>Destination</th>
+                    <th>Type</th>
                     <th>Cargo</th>
                     <th>Status</th>
                   </tr>
@@ -473,7 +636,6 @@
           >
         </div>
 
-        <!-- MULTI-WAYPOINT PANEL (NGO only) -->
         <div class="panel hidden" id="waypointsPanel">
           <strong>Intermediate Stops</strong>
           <p class="panel-hint">
@@ -490,7 +652,6 @@
           </button>
         </div>
 
-        <!-- WEATHER TELEMETRY -->
         <div class="panel" id="weatherPanel">
           <strong>Live Weather Telemetry</strong>
           <div
@@ -500,7 +661,6 @@
           <pre id="weatherOutput">Connecting to monsoon feed...</pre>
         </div>
 
-        <!-- FLEET ANALYTICS -->
         <div class="panel" id="fleetPanel">
           <strong>Fleet Capacity</strong>
           <canvas id="fleetChart" height="180"></canvas>
@@ -509,10 +669,11 @@
           </p>
         </div>
 
-        <!-- MANIFEST OUTPUT -->
         <div class="panel">
           <strong>Live Telemetry</strong>
-          <pre id="manifestOutput">Awaiting deployment initialization...</pre>
+          <div id="manifestOutput" class="manifest-grid">
+            <p class="panel-hint">Awaiting deployment initialization...</p>
+          </div>
         </div>
       </div>
 

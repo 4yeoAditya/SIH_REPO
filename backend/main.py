@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pyproj import Transformer
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="NER Smart Logistics API", version="2.0")
+app = FastAPI(title="Akatsuki Smart Logistics API", version="3.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,11 +21,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------------------------------------------------------
-# Graph loading (downloads graph_state.pkl from a public GitHub Release if
-# not present locally — this is what lets us keep the 1GB+ file out of the
-# actual git repo entirely)
-# ---------------------------------------------------------------------------
 GRAPH_PATH = "graph_state.pkl"
 GRAPH_URL = "https://github.com/4yeoAditya/SIH_REPO/releases/download/v1.0.0/graph_state.pkl"
 
@@ -54,9 +49,15 @@ road_nodes = state["road_nodes"]
 transformer = Transformer.from_crs("EPSG:4326", "EPSG:32646", always_xy=True)
 reverse_transformer = Transformer.from_crs("EPSG:32646", "EPSG:4326", always_xy=True)
 
-# ---------------------------------------------------------------------------
-# Databases (In-Memory for Hackathon)
-# ---------------------------------------------------------------------------
+NGO_REGISTRY = {
+    "Logistics Hub Alpha": {
+        "fleet": [
+            {"type": "Heavy Freight 4x4", "capacity_tons": 15.0},
+            {"type": "Medium Transport", "capacity_tons": 8.0}
+        ]
+    }
+}
+
 DISPATCH_REGISTRY = [
     {
         "driver_id": "DRV-A1B2",
@@ -64,21 +65,21 @@ DISPATCH_REGISTRY = [
         "origin": "Guwahati, Assam",
         "destination": "Tezpur, Assam",
         "cargo_tons": 15.0,
+        "vehicle_type": "Heavy Freight 4x4",
         "priority": "urgent",
         "status": "In Transit"
-    },
-    {
-        "driver_id": "DRV-X9Y8",
-        "ngo_id": "Red Cross NER",
-        "origin": "Silchar, Assam",
-        "destination": "Imphal, Manipur",
-        "cargo_tons": 15.0,
-        "priority": "standard",
-        "status": "Delivered"
     }
 ]
 
 ACTIVE_ALERTS = []
+
+class VehicleConfig(BaseModel):
+    type: str
+    capacity_tons: float
+
+class NgoConfig(BaseModel):
+    ngo_id: str
+    fleet: list[VehicleConfig]
 
 class RouteRequest(BaseModel):
     source_lat: float
@@ -101,12 +102,12 @@ class ResetRequest(BaseModel):
     user_role: str = "government"
 
 class NewDispatch(BaseModel):
-    ngo_id: str = "Logistics Hub Alpha"
+    ngo_id: str
     origin: str
     destination: str
     cargo_tons: float
     priority: str
-    required_trucks: int = 1
+    vehicles: list[VehicleConfig]
 
 class UpdateDriverStatus(BaseModel):
     driver_id: str
@@ -115,22 +116,30 @@ class UpdateDriverStatus(BaseModel):
 def fast_distance(u, v):
     return math.hypot(v[0] - u[0], v[1] - u[1])
 
-# ---------------------------------------------------------------------------
-# Fleet Dispatch & Sync Endpoints
-# ---------------------------------------------------------------------------
+@app.get("/ngo-config")
+def get_ngo_config(ngo_id: str):
+    default_fleet = {"fleet": [{"type": "Standard Truck", "capacity_tons": 15.0}]}
+    return NGO_REGISTRY.get(ngo_id, default_fleet)
+
+@app.post("/ngo-config")
+def update_ngo_config(config: NgoConfig):
+    NGO_REGISTRY[config.ngo_id] = {
+        "fleet": [{"type": v.type, "capacity_tons": v.capacity_tons} for v in config.fleet]
+    }
+    return {"status": "success", "config": NGO_REGISTRY[config.ngo_id]}
+
 @app.post("/dispatch-driver")
 def create_driver_dispatch(req: NewDispatch):
     records = []
-    cargo_per_truck = req.cargo_tons / req.required_trucks if req.required_trucks > 0 else 0
-    
-    for _ in range(req.required_trucks):
+    for v in req.vehicles:
         driver_id = f"DRV-{uuid.uuid4().hex[:4].upper()}"
         record = {
             "driver_id": driver_id,
             "ngo_id": req.ngo_id,
             "origin": req.origin,
             "destination": req.destination,
-            "cargo_tons": round(cargo_per_truck, 1),
+            "cargo_tons": v.capacity_tons,
+            "vehicle_type": v.type,
             "priority": req.priority,
             "status": "Dispatched"
         }
@@ -140,11 +149,12 @@ def create_driver_dispatch(req: NewDispatch):
     return {"status": "success", "records": records}
 
 @app.get("/drivers")
-def get_drivers(role: str = "government", ngo_id: str = "Logistics Hub Alpha"):
+def get_drivers(role: str = "government", ngo_id: str = ""):
     if role == "government":
         return [{"driver_id": d["driver_id"], "ngo_id": d["ngo_id"], "status": d["status"]} for d in DISPATCH_REGISTRY]
     elif role == "organisation":
-        return [d for d in DISPATCH_REGISTRY if d["ngo_id"] == ngo_id or d["ngo_id"] == "Logistics Hub Alpha"]
+        # FIX: Strictly isolated to the requested ngo_id. No default fallback.
+        return [d for d in DISPATCH_REGISTRY if d["ngo_id"] == ngo_id]
     elif role == "local":
         return DISPATCH_REGISTRY
     raise HTTPException(status_code=403, detail="Unauthorized role.")
@@ -161,18 +171,14 @@ def update_driver_status(req: UpdateDriverStatus):
 def get_active_alerts():
     return {"active_alerts": ACTIVE_ALERTS}
 
-# ---------------------------------------------------------------------------
-# Core Routing & Disaster Logic
-# ---------------------------------------------------------------------------
 @app.post("/disaster")
 def trigger_disaster(req: DisasterRequest):
     if req.user_role != "government":
-        raise HTTPException(status_code=403, detail="Unauthorized: Only Government NDRF accounts can declare active hazards.")
+        raise HTTPException(status_code=403, detail="Unauthorized: Only Government accounts can declare hazards.")
         
     x, y = transformer.transform(req.lon, req.lat)
     radius_m = req.radius_km * 1000
     
-    # Register global alert for live driver interception
     ACTIVE_ALERTS.append({
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "hazard_type": req.hazard_type.upper(),
@@ -212,7 +218,7 @@ def trigger_disaster(req: DisasterRequest):
 @app.post("/reset")
 def reset_network(req: ResetRequest):
     if req.user_role != "government":
-        raise HTTPException(status_code=403, detail="Unauthorized: Only Government NDRF accounts can restore infrastructure.")
+        raise HTTPException(status_code=403, detail="Unauthorized: Only Government accounts can restore infrastructure.")
     
     global G, tree, road_nodes
     ACTIVE_ALERTS.clear()
@@ -227,6 +233,13 @@ def reset_network(req: ResetRequest):
 @app.post("/route")
 def calculate_route(req: RouteRequest):
     try:
+        routing_strategy = "Standard Heavy Fleet Routing"
+        
+        if req.total_cargo_tons <= 5.0:
+            routing_strategy = "Agile Off-road / Pack-animal routing active (Small Load)"
+            if "pack_animal" not in req.allowed_modes:
+                req.allowed_modes.extend(["pack_animal", "mud_road", "trail"])
+
         src_x, src_y = transformer.transform(req.source_lon, req.source_lat)
         tgt_x, tgt_y = transformer.transform(req.target_lon, req.target_lat)
         
@@ -257,7 +270,6 @@ def calculate_route(req: RouteRequest):
         for i in range(len(ideal_path) - 1):
             u, v = ideal_path[i], ideal_path[i+1]
             
-            # Safely grab edge data whether it is a MultiDiGraph or not
             edge_data = list(G[u][v].values())[0] if G.is_multigraph() else G[u][v]
             
             if edge_data.get("dynamic_time_min") == float('inf'):
@@ -278,9 +290,9 @@ def calculate_route(req: RouteRequest):
         fleet_size = math.ceil(req.total_cargo_tons / req.vehicle_capacity_tons)
         dispatch_manifest = {
             "requested_by_role": req.user_role,
+            "routing_strategy": routing_strategy,
             "total_cargo_tons": req.total_cargo_tons,
             "required_trucks": fleet_size,
-            "batch_dispatch_intervals": "Every 15 minutes",
             "fleet_capacity_utilization": f"{round((req.total_cargo_tons / (fleet_size * req.vehicle_capacity_tons)) * 100, 1)}%" if fleet_size > 0 else "0%"
         }
             
@@ -316,10 +328,6 @@ def calculate_route(req: RouteRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
 
-
-# ---------------------------------------------------------------------------
-# Live weather telemetry (mocked)
-# ---------------------------------------------------------------------------
 NER_STATES = [
     "Assam", "Arunachal Pradesh", "Manipur", "Meghalaya",
     "Mizoram", "Nagaland", "Sikkim", "Tripura",
