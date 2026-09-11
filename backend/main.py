@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pyproj import Transformer
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Akatsuki Smart Logistics API", version="3.0")
+app = FastAPI(title="Akatsuki Smart Logistics API", version="3.1")
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,6 +62,7 @@ DISPATCH_REGISTRY = [
     {
         "driver_id": "DRV-A1B2",
         "ngo_id": "Logistics Hub Alpha",
+        "phone_number": "+91 98765 43210",
         "origin": "Guwahati, Assam",
         "destination": "Tezpur, Assam",
         "cargo_tons": 15.0,
@@ -103,6 +104,7 @@ class ResetRequest(BaseModel):
 
 class NewDispatch(BaseModel):
     ngo_id: str
+    phone_number: str = "+91 98765 43210"
     origin: str
     destination: str
     cargo_tons: float
@@ -112,6 +114,10 @@ class NewDispatch(BaseModel):
 class UpdateDriverStatus(BaseModel):
     driver_id: str
     status: str
+
+class SmsAlertPayload(BaseModel):
+    driver_id: str
+    custom_message: str = ""
 
 def fast_distance(u, v):
     return math.hypot(v[0] - u[0], v[1] - u[1])
@@ -136,6 +142,7 @@ def create_driver_dispatch(req: NewDispatch):
         record = {
             "driver_id": driver_id,
             "ngo_id": req.ngo_id,
+            "phone_number": req.phone_number,
             "origin": req.origin,
             "destination": req.destination,
             "cargo_tons": v.capacity_tons,
@@ -151,9 +158,8 @@ def create_driver_dispatch(req: NewDispatch):
 @app.get("/drivers")
 def get_drivers(role: str = "government", ngo_id: str = ""):
     if role == "government":
-        return [{"driver_id": d["driver_id"], "ngo_id": d["ngo_id"], "status": d["status"]} for d in DISPATCH_REGISTRY]
+        return [{"driver_id": d["driver_id"], "ngo_id": d["ngo_id"], "status": d["status"], "phone_number": d.get("phone_number", "N/A")} for d in DISPATCH_REGISTRY]
     elif role == "organisation":
-        # FIX: Strictly isolated to the requested ngo_id. No default fallback.
         return [d for d in DISPATCH_REGISTRY if d["ngo_id"] == ngo_id]
     elif role == "local":
         return DISPATCH_REGISTRY
@@ -166,6 +172,40 @@ def update_driver_status(req: UpdateDriverStatus):
             d["status"] = req.status
             return {"status": "success", "driver": d}
     raise HTTPException(status_code=404, detail="Driver ID not found")
+
+# ---------------------------------------------------------------------------
+# Offline Cellular SMS Gateway Endpoint
+# ---------------------------------------------------------------------------
+@app.post("/send-sms-alert")
+def send_sms_alert(req: SmsAlertPayload):
+    driver = next((d for d in DISPATCH_REGISTRY if d["driver_id"] == req.driver_id), None)
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver ID not found.")
+    
+    phone = driver.get("phone_number", "Unlisted")
+    latest_hazard = ACTIVE_ALERTS[-1]["hazard_type"] if ACTIVE_ALERTS else "ROUTING UPDATE"
+    
+    sms_text = req.custom_message or (
+        f"[AKATSUKI EMERGENCY SMS] Driver {driver['driver_id']}: Immediate reroute advised. "
+        f"Hazard: {latest_hazard} reported near destination {driver['destination']}. "
+        "Proceed to safe staging hub."
+    )
+    
+    # Terminal Simulation Log for Cellular Broadcast
+    print(f"\n==========================================")
+    print(f"📡 [GSM CELLULAR BROADCAST] Dispatched SMS")
+    print(f"Recipient: {phone} ({driver['driver_id']})")
+    print(f"Payload  : \"{sms_text}\"")
+    print(f"Protocol : Base Transceiver Station (BTS) Offline Fallback")
+    print(f"==========================================\n")
+    
+    return {
+        "status": "sent",
+        "recipient": phone,
+        "driver_id": driver["driver_id"],
+        "sms_body": sms_text,
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
 
 @app.get("/alerts")
 def get_active_alerts():
